@@ -5,7 +5,6 @@ import Image from "next/image";
 import type { Product, ProductAmazon, ProductSite } from "@/data/products";
 import { useCart } from "@/store/cart";
 
-function isSite(p: Product): p is ProductSite { return p.channel === "site"; }
 function isAmazon(p: Product): p is ProductAmazon { return p.channel === "amazon"; }
 function money(cents: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Math.max(0, Math.round(cents)) / 100);
@@ -14,7 +13,7 @@ function money(cents: number) {
 export default function ProductCard({ product }: { product: Product }) {
   const add = useCart((s) => s.add);
   const [src, setSrc] = useState(product.image);
-  const onErr = (_e: React.SyntheticEvent<HTMLImageElement>) => setSrc("/logos/crit-wordmark.png");
+  const onErr = () => setSrc("/logos/crit-wordmark.png");
 
   return (
     <div className="group card p-4 transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(56,255,201,0.12)]">
