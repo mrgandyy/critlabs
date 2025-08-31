@@ -1,27 +1,22 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+// src/app/account/page.tsx  (SERVER)
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import AccountClient from "./profile-client";
 
-export const metadata = { title: "My Account — CRIT" };
+const PORTAL =
+  process.env.NEXT_PUBLIC_PORTAL_DOMAIN || "accounts.critlabs.shop";
+const SITE =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://critlabs.shop";
 
-export default async function Account() {
-  const { userId } = await auth(); // <-- await here
+export default async function AccountPage() {
+  const { userId } = await auth();
 
+  // Not signed in? Send them to the hosted Clerk portal and back to /account.
   if (!userId) {
-    // You can also render a message, but redirect is cleaner in prod
-    redirect("/sign-in");
+    const returnTo = encodeURIComponent(`${SITE}/account`);
+    redirect(`https://${PORTAL}/sign-in?redirect_url=${returnTo}`);
   }
 
-  const user = await currentUser();
-
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-16 space-y-4">
-      <h1 className="text-3xl font-black">
-        Welcome, {user?.firstName || user?.username || "Player"}.
-      </h1>
-      <p className="opacity-80">
-        You’re signed in with {user?.primaryEmailAddress?.emailAddress}.
-      </p>
-      <p className="text-sm opacity-60">We’ll add order history here later.</p>
-    </div>
-  );
+  // Signed in — render the client UI
+  return <AccountClient />;
 }

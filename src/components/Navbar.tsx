@@ -1,36 +1,79 @@
 "use client";
+
 import Link from "next/link";
-import { useCart } from "@/store/cart";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { useCart } from "@/store/cart";
+import { SignedIn, SignedOut, UserButton, useClerk } from "@clerk/nextjs";
 
 export default function Navbar() {
   const open = useCart((s) => s.open);
   const items = useCart((s) => s.items);
   const count = items.reduce((a, b) => a + b.quantity, 0);
+  const { signOut } = useClerk();
 
   return (
     <header className="sticky top-0 z-50 bg-white/75 backdrop-blur border-b border-black/5">
       <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <img src="/logos/crit-wordmark.png" alt="CRIT" className="h-7 w-auto" />
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-3" aria-label="CRIT home">
+          <Image
+            src="/logos/crit-wordmark.png"
+            alt="CRIT"
+            width={120}
+            height={28}
+            priority
+            className="h-7 w-auto"
+          />
         </Link>
 
+        {/* Primary nav */}
         <nav className="hidden md:flex gap-8 text-sm font-medium">
           <Link href="/shop" className="hover:text-mint">Shop</Link>
           <Link href="/where-to-buy" className="hover:text-mint">Where to Buy</Link>
           <Link href="/about" className="hover:text-mint">About</Link>
           <Link href="/creators" className="hover:text-mint">Creators</Link>
-          <Link href="/account" className="hover:text-mint">Account</Link>
+          <SignedIn>
+            <Link href="/account" className="hover:text-mint">Account</Link>
+          </SignedIn>
         </nav>
 
+        {/* Auth + Cart */}
         <div className="flex items-center gap-3">
           <SignedOut>
-            <Link href="/sign-in" className="hidden md:inline rounded-full border border-black/10 px-4 py-2 text-sm hover:border-mint">Sign in</Link>
+            <Link
+              href="/sign-in"
+              className="hidden md:inline rounded-full border border-black/10 px-4 py-2 text-sm hover:border-mint"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/sign-up"
+              className="hidden md:inline rounded-full bg-mint/10 text-carbon px-4 py-2 text-sm border border-mint hover:bg-mint/20"
+            >
+              Create account
+            </Link>
           </SignedOut>
+
           <SignedIn>
-            <UserButton appearance={{ elements: { avatarBox: "h-8 w-8" } }} />
+            {/* Quick sign out button */}
+            <button
+              onClick={() => signOut({ redirectUrl: "/" })}
+              className="hidden md:inline rounded-full border border-black/10 px-3 py-2 text-sm hover:border-mint"
+            >
+              Sign out
+            </button>
+
+            {/* Clerk user menu */}
+           <UserButton
+            userProfileMode="navigation"
+            userProfileUrl="/account"
+            appearance={{ elements: { avatarBox: "h-8 w-8" } }}
+          />
+
           </SignedIn>
+
+          {/* Cart button */}
           <button
             onClick={open}
             className="relative inline-flex items-center gap-2 rounded-full px-4 py-2 border border-black/10 hover:border-mint transition"
