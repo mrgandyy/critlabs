@@ -34,7 +34,7 @@ export default function AboutContent() {
             viewport={{ once: true }}
             className="relative aspect-square w-full rounded-2xl border border-black/10 bg-white shadow-soft"
           >
-            <Image src="/about/lab-hero.jpg" alt="CRIT lab & product" fill className="object-cover" priority />
+            <Image src="/about/lab-hero.png" alt="CRIT lab & product" fill className="object-cover" priority />
             <div className="absolute right-4 top-4 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold shadow-card backdrop-blur">
               <span className="inline-flex items-center gap-1"><Sparkles className="h-3.5 w-3.5"/> Mint Bolt™</span>
             </div>
@@ -75,7 +75,7 @@ export default function AboutContent() {
             viewport={{ once: true }}
             className="relative h-72 md:h-full rounded-2xl border border-black/10 bg-white shadow-soft"
           >
-            <Image src="/about/team.jpg" alt="Founders and creators" fill className="object-cover" />
+            <Image src="/about/team.png" alt="Founders and creators" fill className="object-cover" />
           </motion.div>
         </div>
       </section>
