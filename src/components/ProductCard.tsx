@@ -1,47 +1,77 @@
 "use client";
-import { Product } from "@/data/products";
+
+import { useState } from "react";
+import Image from "next/image";
+import type { Product, ProductAmazon, ProductSite } from "@/data/products";
 import { useCart } from "@/store/cart";
-import { motion } from "framer-motion";
+
+function isSite(p: Product): p is ProductSite {
+  return p.channel === "site";
+}
+function isAmazon(p: Product): p is ProductAmazon {
+  return p.channel === "amazon";
+}
+function money(cents: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+    Math.max(0, Math.round(cents)) / 100
+  );
+}
 
 export default function ProductCard({ product }: { product: Product }) {
   const add = useCart((s) => s.add);
+  const [src, setSrc] = useState(product.image);
+
+  // NOTE: Next/Image onError provides a SyntheticEvent<HTMLImageElement>
+  const handleImgError = (_e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    setSrc("/logos/crit-wordmark.png"); // simple fallback
+  };
 
   return (
-    <motion.div whileHover={{ y: -4 }} className="card p-4">
-      <div className="aspect-square overflow-hidden rounded-xl bg-neutral-50">
-        <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
+    <div className="card p-4">
+      <div className="aspect-square overflow-hidden rounded-xl bg-neutral-50 grid place-items-center">
+        <Image
+          src={src}
+          alt={product.name}
+          width={800}
+          height={800}
+          className="h-full w-full object-contain"
+          onError={handleImgError}
+          priority={false}
+        />
       </div>
 
       <div className="mt-3 flex items-baseline justify-between">
         <div>
           <h4 className="font-semibold">{product.name}</h4>
-          <p className="text-sm opacity-60">{product.flavor}</p>
+          {"flavor" in product && product.flavor ? (
+            <p className="text-sm opacity-60">{product.flavor}</p>
+          ) : null}
         </div>
-        <div className="font-bold">${(product.price / 100).toFixed(2)}</div>
+
+        {isAmazon(product) ? (
+          <div className="text-xs opacity-60">Amazon</div>
+        ) : (
+          <div className="font-bold">{money(product.price)}</div>
+        )}
       </div>
 
-      {product.channel === "amazon" && (
+      {isAmazon(product) ? (
         <a
-          href={(product as any).amazonUrl}
+          href={product.amazonUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-4 w-full btn btn-primary text-center"
         >
           Buy on Amazon
         </a>
-      )}
-
-      {product.channel === "site" && (
-        <button onClick={() => add(product)} className="mt-4 w-full btn btn-primary">
+      ) : (
+        <button
+          onClick={() => add(product)}
+          className="mt-4 w-full btn btn-primary"
+        >
           Add to Cart
         </button>
       )}
-
-      {product.channel === "comingSoon" && (
-        <a href="#newsletter" className="mt-4 w-full btn btn-primary text-center">
-          Get notified
-        </a>
-      )}
-    </motion.div>
+    </div>
   );
 }
