@@ -1,8 +1,18 @@
 "use client";
 import { useState } from "react";
 
+type LeadData = {
+  name?: string;
+  email: string;
+  primaryPlatform?: string;
+  handle?: string;
+  avgViews?: string;
+  region?: string;
+  notes?: string;
+};
+
 export default function CreatorForm() {
-  const [ok, setOk] = useState<boolean | null>(null);
+  const [ok, setOk] = useState<null | boolean>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -13,20 +23,32 @@ export default function CreatorForm() {
     setErr(null);
 
     const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form) as any);
+    const formEntries = new FormData(form);
+    const data = Object.fromEntries(formEntries.entries()) as Record<string, string>;
+
+    const payload: LeadData = {
+      name: data.name,
+      email: data.email,
+      primaryPlatform: data.primaryPlatform,
+      handle: data.handle,
+      avgViews: data.avgViews,
+      region: data.region,
+      notes: data.notes,
+    };
 
     try {
       const r = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "creator", data }),
+        body: JSON.stringify({ type: "creator", data: payload }),
       });
       if (!r.ok) throw new Error("Request failed");
       setOk(true);
       form.reset();
-    } catch (e: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
       setOk(false);
-      setErr("Something went wrong—try again in a minute.");
+      setErr(message);
     } finally {
       setLoading(false);
     }
@@ -55,7 +77,7 @@ export default function CreatorForm() {
         {loading ? "Submitting…" : "Apply"}
       </button>
 
-      {ok && <p className="text-sm text-green-600">Got it! We’ll review and reply by email.</p>}
+      {ok === true && <p className="text-sm text-green-600">Got it! We’ll review and reply by email.</p>}
       {ok === false && <p className="text-sm text-red-600">{err}</p>}
     </form>
   );

@@ -1,7 +1,6 @@
 "use client";
 import { useCart } from "@/store/cart";
 import { money } from "@/lib/format";
-import { products } from "@/data/products";
 
 export default function CartDrawer(){
   const { opened, close, items, inc, dec, remove } = useCart();

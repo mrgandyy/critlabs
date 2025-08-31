@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
+export const runtime = "nodejs";
+
 const API_KEY = process.env.MAILCHIMP_API_KEY!;
 const LIST_ID = process.env.MAILCHIMP_AUDIENCE_ID!;
-const DC = process.env.MAILCHIMP_DC!; // e.g., "us21"
+const DC = process.env.MAILCHIMP_DC!; // e.g., "us14"
 const BASE = `https://${DC}.api.mailchimp.com/3.0`;
 
+type NewsletterPayload = {
+  email: string;
+  specials?: boolean;
+};
+
 function authHeader() {
-  // Mailchimp uses HTTP Basic with any user and the API key as the password
   return `Basic ${Buffer.from(`any:${API_KEY}`).toString("base64")}`;
 }
 
@@ -25,7 +31,6 @@ async function upsertMember(email: string) {
       email_address: email,
       status_if_new: process.env.MAILCHIMP_DOUBLE_OPT_IN === "1" ? "pending" : "subscribed",
     }),
-    // Next.js: revalidate or cache off by default in route handlers
   });
 
   if (!res.ok) {
@@ -58,8 +63,8 @@ async function addTags(hash: string, tags: string[]) {
 
 export async function POST(req: Request) {
   try {
-    const { email, specials } = await req.json();
-    if (!email || typeof email !== "string") {
+    const { email, specials }: NewsletterPayload = await req.json();
+    if (!email) {
       return NextResponse.json({ ok: false, error: "Email required" }, { status: 400 });
     }
 
@@ -67,8 +72,9 @@ export async function POST(req: Request) {
     if (specials) await addTags(hash, ["specials"]);
 
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    console.error("Newsletter error:", e?.message || e);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Newsletter error:", message);
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 }
