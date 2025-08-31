@@ -1,14 +1,18 @@
 "use client";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
+import type { HTMLMotionProps } from "framer-motion";
+import type React from "react";
 
-export default function MagneticButton({
-  children,
-  className = "",
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+type Props = Omit<HTMLMotionProps<"button">, "ref" | "onDrag"> & {
+  className?: string;
+  children: React.ReactNode;
+};
+
+export default function MagneticButton({ children, className = "", ...props }: Props) {
   const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0), y = useMotionValue(0);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 120, damping: 14 });
   const sy = useSpring(y, { stiffness: 120, damping: 14 });
 
@@ -19,7 +23,11 @@ export default function MagneticButton({
     x.set((e.clientX - (r.left + r.width / 2)) * 0.25);
     y.set((e.clientY - (r.top + r.height / 2)) * 0.25);
   };
-  const onLeave = () => { x.set(0); y.set(0); };
+
+  const onLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
 
   return (
     <motion.button

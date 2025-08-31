@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import type { Product, ProductAmazon, ProductSite } from "@/data/products";
+import type { Product, ProductAmazon } from "@/data/products";
 import { useCart } from "@/store/cart";
 
 function isAmazon(p: Product): p is ProductAmazon { return p.channel === "amazon"; }
