@@ -1,25 +1,39 @@
-export type SalesChannel = "site" | "amazon";
+export type SalesChannel = "site" | "amazon" | "comingSoon";
 
-export type Product = {
+export type ProductSite = {
   id: string;
   name: string;
-  price: number;           // cents (only used for "site" channel)
+  price: number;
   flavor: string;
   image: string;
-  channel: SalesChannel;   // <— new
-  amazonUrl?: string;      // <— new (full URL to your ASIN or Brand Store PDP)
+  channel: "site";
+  stripePriceId: string;
 };
 
-const ATTRIB = process.env.NEXT_PUBLIC_AMAZON_ATTR_TAG || ""; // e.g. "critlabs-20"
-
-const withAttrib = (url: string) => {
-  if (!ATTRIB) return url;
-  const u = new URL(url);
-  // append tag param for Associates / Attribution links if provided
-  if (!u.searchParams.has("tag")) u.searchParams.set("tag", ATTRIB);
-  return u.toString();
+export type ProductAmazon = {
+  id: string;
+  name: string;
+  price: number;
+  flavor: string;
+  image: string;
+  channel: "amazon";
+  amazonUrl: string;
 };
 
+export type ProductComingSoon = {
+  id: string;
+  name: string;
+  price: number;
+  flavor: string;
+  image: string;
+  channel: "comingSoon";
+};
+
+export type Product = ProductSite | ProductAmazon | ProductComingSoon;
+
+// (keep your existing ATTRIB + withAttrib if you like)
+
+// Example products (switch yours to "comingSoon" for now)
 export const products: Product[] = [
   {
     id: "crit-fuel-neon-freeze",
@@ -27,8 +41,7 @@ export const products: Product[] = [
     price: 3999,
     flavor: "Mint Citrus",
     image: "/products/neon-freeze.png",
-    channel: "amazon",
-    amazonUrl: withAttrib("https://www.amazon.com/dp/REPLACE_ASIN_NEON"),
+    channel: "comingSoon",
   },
   {
     id: "crit-fuel-berry-aim",
@@ -36,8 +49,6 @@ export const products: Product[] = [
     price: 3999,
     flavor: "Berry Blend",
     image: "/products/berry-aim.png",
-    channel: "amazon",
-    amazonUrl: withAttrib("https://www.amazon.com/dp/REPLACE_ASIN_BERRY"),
+    channel: "comingSoon",
   },
-  // keep any non-Amazon items as channel: "site"
 ];

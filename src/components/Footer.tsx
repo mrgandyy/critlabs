@@ -25,7 +25,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="mt-24 border-t border-black/5">
+    <footer className="mt-24 border-t border-black/5" id="newsletter">
       <div className="mx-auto max-w-7xl px-4 py-12 grid gap-8 md:grid-cols-4">
         <div>
           <img src="/logos/crit-wordmark.png" alt="CRIT" className="h-7 w-auto mb-4" />
